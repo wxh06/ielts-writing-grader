@@ -1,0 +1,3 @@
+kaggle
+tensorflow<3,>=2
+keras-nlp
