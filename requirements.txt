@@ -1,4 +1,3 @@
-kaggle
 keras-nlp
 tensorflow<3,>=2
 pandas
