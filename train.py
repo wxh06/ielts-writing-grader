@@ -5,10 +5,10 @@ import keras
 import keras_nlp
 import pandas as pd
 
+from preprocessor import preprocessor
+
 LOG_DIR = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 NUM_CLASSES = 17
-
-preprocessor = keras_nlp.models.BertPreprocessor.from_preset("bert_base_en")
 
 df = pd.read_json(sys.argv[1], lines=True)
 df = df[
