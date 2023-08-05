@@ -1,9 +1,11 @@
 import sys
+from datetime import datetime
 
 import keras
 import keras_nlp
 import pandas as pd
 
+LOG_DIR = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 NUM_CLASSES = 17
 
 preprocessor = keras_nlp.models.BertPreprocessor.from_preset("bert_base_en")
@@ -64,6 +66,19 @@ model.compile(
     metrics=[keras.metrics.CategoricalAccuracy()],
 )
 
+
+class EpochSaver(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        self.model.save(f"saved_models/{epoch}")
+
+
 model.fit(
-    *preprocess(train), validation_data=preprocess(validation), epochs=10, batch_size=32
+    *preprocess(train),
+    validation_data=preprocess(validation),
+    epochs=10,
+    batch_size=32,
+    callbacks=[
+        keras.callbacks.TensorBoard(log_dir=LOG_DIR, histogram_freq=1),
+        EpochSaver(),
+    ],
 )
