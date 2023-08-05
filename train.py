@@ -21,13 +21,19 @@ df = df[
         ]
     )
 ]
-scores = keras.utils.to_categorical(
-    df["text"].apply(lambda t: t["band"]) * 2 - 2, NUM_CLASSES
-)
-questions = preprocessor(
-    df["text"].apply(lambda t: t["question"]).replace("\r\n", "\n")
-)
-essays = preprocessor(df["text"].apply(lambda t: t["text"]).replace("\r\n", "\n"))
+train, validation = df.iloc[: round(len(df) * 0.9)], df.iloc[round(len(df) * 0.9) :]
+
+
+def preprocess(d):
+    scores = keras.utils.to_categorical(
+        d["text"].apply(lambda t: t["band"]) * 2 - 2, NUM_CLASSES
+    )
+    questions = preprocessor(
+        d["text"].apply(lambda t: t["question"]).replace("\r\n", "\n")
+    )
+    essays = preprocessor(d["text"].apply(lambda t: t["text"]).replace("\r\n", "\n"))
+    return (essays, questions), scores
+
 
 question = keras_nlp.models.BertBackbone.from_preset("bert_base_en")
 question.trainable = False
@@ -58,4 +64,6 @@ model.compile(
     metrics=[keras.metrics.CategoricalAccuracy()],
 )
 
-model.fit((questions, essays), scores, epochs=10, batch_size=32)
+model.fit(
+    *preprocess(train), validation_data=preprocess(validation), epochs=10, batch_size=32
+)
